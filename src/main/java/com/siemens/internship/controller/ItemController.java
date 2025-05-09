@@ -1,4 +1,4 @@
-package com.siemens.internship;
+package com.siemens.internship.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,21 +7,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.siemens.internship.model.Item;
+import com.siemens.internship.service.IItemService;
+
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/items")
-public class ItemController {
+public class ItemController implements IItemController {
 
     @Autowired
-    private ItemService itemService;
+    private IItemService itemService;
 
+    @Override
     @GetMapping
     public ResponseEntity<List<Item>> getAllItems() {
         return new ResponseEntity<>(itemService.findAll(), HttpStatus.OK);
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<Item> createItem(@Valid @RequestBody Item item, BindingResult result) {
         if (result.hasErrors()) {
@@ -30,6 +35,7 @@ public class ItemController {
         return new ResponseEntity<>(itemService.save(item), HttpStatus.BAD_REQUEST);
     }
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<Item> getItemById(@PathVariable Long id) {
         return itemService.findById(id)
@@ -37,6 +43,7 @@ public class ItemController {
                 .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
+    @Override
     @PutMapping("/{id}")
     public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item item) {
         Optional<Item> existingItem = itemService.findById(id);
@@ -48,12 +55,14 @@ public class ItemController {
         }
     }
 
+    @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
         itemService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
+    @Override
     @GetMapping("/process")
     public ResponseEntity<List<Item>> processItems() {
         return new ResponseEntity<>(itemService.processItemsAsync(), HttpStatus.OK);

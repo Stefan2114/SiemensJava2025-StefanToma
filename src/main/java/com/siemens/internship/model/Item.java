@@ -1,4 +1,4 @@
-package com.siemens.internship;
+package com.siemens.internship.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Item {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
