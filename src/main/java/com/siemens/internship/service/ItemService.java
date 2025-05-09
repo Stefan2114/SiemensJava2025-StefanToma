@@ -1,39 +1,62 @@
 package com.siemens.internship.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.siemens.internship.Exceptions.ServiceException;
 import com.siemens.internship.model.Item;
 import com.siemens.internship.repository.IItemRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
 public class ItemService implements IItemService {
-    @Autowired
-    private IItemRepository itemRepository;
-    private static ExecutorService executor = Executors.newFixedThreadPool(10);
+
+    private final IItemRepository itemRepository;
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(10);
     private List<Item> processedItems = new ArrayList<>();
     private int processedCount = 0;
 
+    public ItemService(IItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
+
+    @Override
     public List<Item> findAll() {
-        return itemRepository.findAll();
+        try {
+            return this.itemRepository.findAll();
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage());
+        }
+
     }
 
-    public Optional<Item> findById(Long id) {
-        return itemRepository.findById(id);
+    @Override
+    public Item findById(Long id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("error finding the Item"));
     }
 
+    @Override
     public Item save(Item item) {
-        return itemRepository.save(item);
+        try {
+            return itemRepository.save(item);
+        } catch (Exception e) {
+            throw new ServiceException("null");
+        }
+
     }
 
+    @Override
     public void deleteById(Long id) {
-        itemRepository.deleteById(id);
+        try {
+            itemRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new ServiceException("null");
+        }
+
     }
 
     /**
@@ -55,6 +78,8 @@ public class ItemService implements IItemService {
      * Examine how errors are handled and propagated
      * Consider the interaction between Spring's @Async and CompletableFuture
      */
+
+    @Override
     @Async
     public List<Item> processItemsAsync() {
 
@@ -79,7 +104,7 @@ public class ItemService implements IItemService {
                 } catch (InterruptedException e) {
                     System.out.println("Error: " + e.getMessage());
                 }
-            }, executor);
+            }, EXECUTOR);
         }
 
         return processedItems;
