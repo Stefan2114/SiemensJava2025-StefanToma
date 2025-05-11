@@ -1,11 +1,11 @@
-package com.siemens.internship.controller;
+package com.siemens.internship.controllers;
 
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
-import com.siemens.internship.model.Item;
+import com.siemens.internship.models.Item;
 
 public interface IItemController {
 
